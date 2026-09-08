@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ореке — меню</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #241C16;
+    --cream: #F3E8D6;
+    --ink: #241C16;
+    --gold: #C68A3D;
+    --terracotta: #A24A34;
+    --muted-on-dark: #B9AB98;
+    --muted-on-cream: #8A7A68;
+    --hairline: rgba(243,232,214,0.16);
+    --hairline-cream: rgba(36,28,22,0.14);
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap{
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 20px 56px;
+  }
+
+  header.hero{
+    padding: 44px 0 28px;
+    text-align: left;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .mark{
+    width: 52px;
+    height: 52px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    color: var(--gold);
+    margin-bottom: 18px;
+  }
+  h1.cafe-name{
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 34px;
+    letter-spacing: 0.2px;
+    margin: 0 0 8px;
+    line-height: 1.1;
+  }
+  p.welcome{
+    font-size: 15px;
+    color: var(--muted-on-dark);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  nav.categories{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 16px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--hairline);
+    scrollbar-width: none;
+  }
+  nav.categories::-webkit-scrollbar{ display:none; }
+  .cat-btn{
+    flex: 0 0 auto;
+    background: transparent;
+    color: var(--muted-on-dark);
+    border: 1px solid var(--hairline);
+    border-radius: 20px;
+    padding: 9px 16px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  }
+  .cat-btn.active{
+    color: var(--ink);
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  section.dishes{ padding-top: 8px; }
+  .dish{
+    background: var(--cream);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .dish-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .dish-name{
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 1.3;
+  }
+  .dish-price{
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--terracotta);
+    white-space: nowrap;
+  }
+  .dish-desc{
+    font-size: 13.5px;
+    color: var(--muted-on-cream);
+    line-height: 1.55;
+    margin-top: 6px;
+  }
+
+  footer.note{
+    text-align: center;
+    color: var(--muted-on-dark);
+    font-size: 12px;
+    padding-top: 24px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="mark">О</div>
+    <h1 class="cafe-name">Ореке</h1>
+    <p class="welcome">Добро пожаловать! Выберите раздел меню ниже.</p>
+  </header>
+
+  <nav class="categories" id="categories"></nav>
+
+  <section class="dishes" id="dishes"></section>
+
+  <footer class="note">Цены указаны в тенге</footer>
+</div>
+
+<script>
+  const menu = {
+    "Основные блюда": [
+      { name: "Бешбармак", price: "3 200 ₸", desc: "Отварная говядина и конина с домашней раскатанной лапшой, подаётся с луковым соусом." },
+      { name: "Плов с бараниной", price: "2 800 ₸", desc: "Рассыпчатый рис с бараниной, морковью и нутом, томлённый в казане." },
+      { name: "Манты", price: "2 200 ₸", desc: "Паровые манты с рубленой бараниной и луком, подаются со сметаной." }
+    ],
+    "Салаты": [
+      { name: "Ачучук", price: "1 200 ₸", desc: "Свежие томаты, репчатый лук и зелень, заправленные растительным маслом." },
+      { name: "Цезарь с курицей", price: "1 800 ₸", desc: "Куриное филе на гриле, романо, пармезан, соус цезарь и гренки." },
+      { name: "Салат с языком", price: "2 100 ₸", desc: "Отварной говяжий язык, свежий огурец, яйцо и лёгкий майонезный соус." }
+    ],
+    "Холодные закуски": [
+      { name: "Мясное ассорти", price: "3 500 ₸", desc: "Казы, шужук и вяленая говядина домашнего приготовления." },
+      { name: "Овощная нарезка", price: "1 500 ₸", desc: "Сезонные овощи и свежая зелень." },
+      { name: "Сырная тарелка", price: "2 400 ₸", desc: "Три вида сыра с грецким орехом и мёдом." }
+    ],
+    "Супы": [
+      { name: "Шурпа", price: "1 900 ₸", desc: "Наваристый суп на бараньих рёбрах с картофелем и овощами." },
+      { name: "Лагман", price: "2 000 ₸", desc: "Домашняя лапша с говядиной и овощами в остром бульоне." },
+      { name: "Куриный бульон с лапшой", price: "1 400 ₸", desc: "Лёгкий бульон с домашней лапшой и свежей зеленью." }
+    ],
+    "Горячие блюда": [
+      { name: "Стейк из говядины", price: "4 200 ₸", desc: "Говяжья вырезка на гриле с розмариновым маслом." },
+      { name: "Куырдак", price: "2 600 ₸", desc: "Обжаренные печень и сердце с картофелем и репчатым луком." },
+      { name: "Форель на гриле", price: "3 400 ₸", desc: "Радужная форель, запечённая с лимоном и травами." }
+    ],
+    "Бар": [
+      { name: "Чай в чайнике", price: "800 ₸", desc: "Чёрный или зелёный чай, подаётся с домашним вареньем." },
+      { name: "Ягодный морс", price: "900 ₸", desc: "Домашний морс из сезонных ягод." },
+      { name: "Американо", price: "1 000 ₸", desc: "Свежесваренный кофе." }
+    ]
+  };
+
+  const categoriesEl = document.getElementById('categories');
+  const dishesEl = document.getElementById('dishes');
+  const categoryNames = Object.keys(menu);
+
+  function renderDishes(cat){
+    dishesEl.innerHTML = '';
+    menu[cat].forEach(d => {
+      const card = document.createElement('div');
+      card.className = 'dish';
+      card.innerHTML =
+        '<div class="dish-top">' +
+          '<span class="dish-name">' + d.name + '</span>' +
+          '<span class="dish-price">' + d.price + '</span>' +
+        '</div>' +
+        '<div class="dish-desc">' + d.desc + '</div>';
+      dishesEl.appendChild(card);
+    });
+  }
+
+  function setActive(cat){
+    [...categoriesEl.children].forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.cat === cat);
+    });
+    renderDishes(cat);
+  }
+
+  categoryNames.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.textContent = cat;
+    btn.dataset.cat = cat;
+    btn.addEventListener('click', () => setActive(cat));
+    categoriesEl.appendChild(btn);
+  });
+
+  setActive(categoryNames[0]);
+</script>
+
+</body>
+</html>
