@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ореке — управление меню</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#241C16; --cream:#F3E8D6; --ink:#241C16; --gold:#C68A3D;
+    --terracotta:#A24A34; --muted:#B9AB98; --danger:#C15B4A;
+    --hairline: rgba(243,232,214,0.16);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--cream);
+    font-family:'Manrope', sans-serif; padding-bottom:60px;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding:32px 18px; }
+  h1{ font-family:'Fraunces',serif; font-weight:600; font-size:26px; margin:0 0 4px; }
+  p.sub{ color:var(--muted); font-size:13.5px; margin:0 0 24px; line-height:1.5; }
+  .panel{
+    background:rgba(243,232,214,0.05); border:1px solid var(--hairline);
+    border-radius:12px; padding:16px 18px; margin-bottom:20px;
+  }
+  .panel h2{ font-family:'Fraunces',serif; font-size:16px; font-weight:600; margin:0 0 12px; }
+  label{ display:block; font-size:12.5px; color:var(--muted); margin:10px 0 4px; }
+  input[type=text], input[type=password], textarea{
+    width:100%; padding:10px 12px; border-radius:8px;
+    border:1px solid rgba(243,232,214,0.25); background:transparent;
+    color:var(--cream); font-size:14px; font-family:inherit;
+  }
+  textarea{ resize:vertical; min-height:50px; }
+  input::placeholder, textarea::placeholder{ color:var(--muted); }
+  button{
+    border:none; border-radius:8px; padding:10px 16px;
+    font-weight:600; font-size:13.5px; cursor:pointer; font-family:inherit;
+  }
+  .btn-gold{ background:var(--gold); color:var(--ink); }
+  .btn-outline{ background:transparent; color:var(--cream); border:1px solid var(--terracotta); }
+  .btn-danger{ background:transparent; color:var(--danger); border:1px solid var(--danger); }
+  .btn-sm{ padding:7px 12px; font-size:12.5px; }
+  #status{ font-size:13px; margin-top:10px; min-height:18px; }
+  #status.ok{ color:#9BC98E; }
+  #status.err{ color:#E0857A; }
+
+  .cat{
+    background:var(--cream); color:var(--ink); border-radius:12px;
+    padding:16px 18px; margin-bottom:16px;
+  }
+  .cat-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .cat-head h3{ font-family:'Fraunces',serif; font-size:18px; margin:0; }
+  .dish-row{
+    border-top:1px solid rgba(36,28,22,0.12); padding:12px 0; display:flex; gap:12px;
+  }
+  .dish-row img{ width:56px; height:56px; object-fit:cover; border-radius:8px; flex-shrink:0; }
+  .dish-photo-placeholder{
+    width:56px; height:56px; border-radius:8px; background:rgba(36,28,22,0.08);
+    flex-shrink:0;
+  }
+  .dish-info{ flex:1; min-width:0; }
+  .dish-top{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+  .dish-name{ font-weight:600; font-size:14.5px; }
+  .dish-price{ font-size:13px; color:var(--terracotta); font-weight:600; white-space:nowrap; }
+  .dish-desc{ font-size:12.5px; color:#6b5c4c; margin-top:3px; line-height:1.4; }
+  .dish-actions{ margin-top:6px; }
+
+  .add-dish-form{
+    border-top:1px solid rgba(36,28,22,0.12); padding-top:14px; margin-top:6px;
+  }
+  .add-dish-form label{ color:#6b5c4c; }
+  .add-dish-form input, .add-dish-form textarea{
+    border-color:rgba(36,28,22,0.2); color:var(--ink);
+  }
+  .add-dish-form input::placeholder, .add-dish-form textarea::placeholder{ color:#9c8d7c; }
+  .row2{ display:flex; gap:10px; }
+  .row2 > div{ flex:1; }
+
+  .new-cat-row{ display:flex; gap:8px; }
+  .new-cat-row input{ flex:1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Управление меню «Ореке»</h1>
+  <p class="sub">Добавляйте и удаляйте категории и блюда, прикрепляйте фото и описание. После сохранения изменения появятся на сайте меню при следующем открытии.</p>
+
+  <div class="panel">
+    <h2>Подключение к репозиторию</h2>
+    <label>Логин GitHub (владелец репозитория)</label>
+    <input type="text" id="ghOwner" placeholder="bikok123">
+    <label>Название репозитория</label>
+    <input type="text" id="ghRepo" placeholder="oreke-menu">
+    <label>Personal Access Token</label>
+    <input type="password" id="ghToken" placeholder="ghp_...">
+    <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn-gold" id="loadBtn">Загрузить текущее меню</button>
+      <button class="btn-outline" id="saveBtn">Сохранить изменения на GitHub</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Добавить категорию</h2>
+    <div class="new-cat-row">
+      <input type="text" id="newCatName" placeholder="Например: Десерты">
+      <button class="btn-gold btn-sm" id="addCatBtn">Добавить</button>
+    </div>
+  </div>
+
+  <div id="categories"></div>
+</div>
+
+<script>
+  const state = { categories: [] };
+  const els = {
+    owner: document.getElementById('ghOwner'),
+    repo: document.getElementById('ghRepo'),
+    token: document.getElementById('ghToken'),
+    status: document.getElementById('status'),
+    categories: document.getElementById('categories'),
+    newCatName: document.getElementById('newCatName')
+  };
+
+  ['ghOwner','ghRepo','ghToken'].forEach(id => {
+    const saved = localStorage.getItem('oreke_' + id);
+    if(saved) document.getElementById(id).value = saved;
+    document.getElementById(id).addEventListener('change', e => {
+      localStorage.setItem('oreke_' + id, e.target.value.trim());
+    });
+  });
+
+  function uid(){ return Math.random().toString(36).slice(2, 10); }
+
+  function setStatus(msg, kind){
+    els.status.textContent = msg;
+    els.status.className = kind || '';
+  }
+
+  function utf8ToBase64(str){
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+      (m, p1) => String.fromCharCode(parseInt(p1, 16))));
+  }
+  function base64ToUtf8(b64){
+    const clean = b64.replace(/\n/g, '');
+    return decodeURIComponent(atob(clean).split('').map(c =>
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+  }
+
+  function ghHeaders(){
+    return {
+      'Authorization': 'Bearer ' + els.token.value.trim(),
+      'Accept': 'application/vnd.github+json'
+    };
+  }
+  function apiUrl(){
+    return `https://api.github.com/repos/${els.owner.value.trim()}/${els.repo.value.trim()}/contents/menu-data.json`;
+  }
+
+  async function loadMenu(){
+    if(!els.owner.value.trim() || !els.repo.value.trim() || !els.token.value.trim()){
+      setStatus('Заполните логин, репозиторий и токен.', 'err');
+      return;
+    }
+    setStatus('Загружаю...', '');
+    try{
+      const res = await fetch(apiUrl(), { headers: ghHeaders() });
+      if(res.status === 404){
+        state.categories = [];
+        window._sha = null;
+        renderCategories();
+        setStatus('Файл меню ещё не создан — начните добавлять категории.', 'ok');
+        return;
+      }
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      window._sha = data.sha;
+      const json = base64ToUtf8(data.content);
+      const parsed = JSON.parse(json);
+      state.categories = parsed.categories || [];
+      renderCategories();
+      setStatus('Меню загружено.', 'ok');
+    }catch(err){
+      setStatus('Ошибка загрузки: ' + err.message, 'err');
+    }
+  }
+
+  async function saveMenu(){
+    if(!els.owner.value.trim() || !els.repo.value.trim() || !els.token.value.trim()){
+      setStatus('Заполните логин, репозиторий и токен.', 'err');
+      return;
+    }
+    setStatus('Сохраняю...', '');
+    try{
+      const body = {
+        message: 'Обновление меню',
+        content: utf8ToBase64(JSON.stringify({ categories: state.categories }, null, 2))
+      };
+      if(window._sha) body.sha = window._sha;
+      const res = await fetch(apiUrl(), {
+        method: 'PUT',
+        headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if(!res.ok){
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || ('HTTP ' + res.status));
+      }
+      const data = await res.json();
+      window._sha = data.content.sha;
+      setStatus('Сохранено. Обновите страницу сайта меню, чтобы увидеть изменения.', 'ok');
+    }catch(err){
+      setStatus('Ошибка сохранения: ' + err.message, 'err');
+    }
+  }
+
+  function addCategory(){
+    const name = els.newCatName.value.trim();
+    if(!name) return;
+    state.categories.push({ id: uid(), name, dishes: [] });
+    els.newCatName.value = '';
+    renderCategories();
+  }
+
+  function removeCategory(catId){
+    if(!confirm('Удалить категорию вместе со всеми блюдами?')) return;
+    state.categories = state.categories.filter(c => c.id !== catId);
+    renderCategories();
+  }
+
+  function removeDish(catId, dishId){
+    const cat = state.categories.find(c => c.id === catId);
+    if(!cat) return;
+    cat.dishes = cat.dishes.filter(d => d.id !== dishId);
+    renderCategories();
+  }
+
+  function resizeImage(file, maxDim, quality){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if(width > height && width > maxDim){
+            height = Math.round(height * (maxDim / width));
+            width = maxDim;
+          }else if(height > maxDim){
+            width = Math.round(width * (maxDim / height));
+            height = maxDim;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderCategories(){
+    els.categories.innerHTML = '';
+    state.categories.forEach(cat => {
+      const catDiv = document.createElement('div');
+      catDiv.className = 'cat';
+
+      const head = document.createElement('div');
+      head.className = 'cat-head';
+      head.innerHTML = `<h3>${cat.name}</h3>`;
+      const delCatBtn = document.createElement('button');
+      delCatBtn.className = 'btn-danger btn-sm';
+      delCatBtn.textContent = 'Удалить категорию';
+      delCatBtn.addEventListener('click', () => removeCategory(cat.id));
+      head.appendChild(delCatBtn);
+      catDiv.appendChild(head);
+
+      cat.dishes.forEach(dish => {
+        const row = document.createElement('div');
+        row.className = 'dish-row';
+        row.innerHTML = `
+          ${dish.photo ? `<img src="${dish.photo}">` : `<div class="dish-photo-placeholder"></div>`}
+          <div class="dish-info">
+            <div class="dish-top">
+              <span class="dish-name">${dish.name}</span>
+              <span class="dish-price">${dish.price || ''}</span>
+            </div>
+            <div class="dish-desc">${dish.desc || ''}</div>
+            <div class="dish-actions"></div>
+          </div>
+        `;
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-danger btn-sm';
+        delBtn.textContent = 'Удалить блюдо';
+        delBtn.addEventListener('click', () => removeDish(cat.id, dish.id));
+        row.querySelector('.dish-actions').appendChild(delBtn);
+        catDiv.appendChild(row);
+      });
+
+      const form = document.createElement('div');
+      form.className = 'add-dish-form';
+      form.innerHTML = `
+        <label>Название блюда</label>
+        <input type="text" class="f-name" placeholder="Например: Манты">
+        <div class="row2">
+          <div>
+            <label>Цена</label>
+            <input type="text" class="f-price" placeholder="2 200 ₸">
+          </div>
+          <div>
+            <label>Фото</label>
+            <input type="file" class="f-photo" accept="image/*">
+          </div>
+        </div>
+        <label>Описание</label>
+        <textarea class="f-desc" placeholder="Из чего и как приготовлено"></textarea>
+        <div style="margin-top:10px;">
+          <button class="btn-gold btn-sm f-add">Добавить блюдо</button>
+        </div>
+      `;
+      const addBtn = form.querySelector('.f-add');
+      addBtn.addEventListener('click', async () => {
+        const name = form.querySelector('.f-name').value.trim();
+        if(!name){ alert('Введите название блюда'); return; }
+        const price = form.querySelector('.f-price').value.trim();
+        const desc = form.querySelector('.f-desc').value.trim();
+        const fileInput = form.querySelector('.f-photo');
+        let photo = null;
+        if(fileInput.files[0]){
+          addBtn.textContent = 'Обрабатываю фото...';
+          addBtn.disabled = true;
+          try{
+            photo = await resizeImage(fileInput.files[0], 640, 0.72);
+          }catch(e){}
+          addBtn.textContent = 'Добавить блюдо';
+          addBtn.disabled = false;
+        }
+        cat.dishes.push({ id: uid(), name, price, desc, photo });
+        renderCategories();
+      });
+      catDiv.appendChild(form);
+
+      els.categories.appendChild(catDiv);
+    });
+  }
+
+  document.getElementById('loadBtn').addEventListener('click', loadMenu);
+  document.getElementById('saveBtn').addEventListener('click', saveMenu);
+  document.getElementById('addCatBtn').addEventListener('click', addCategory);
+</script>
+</body>
+</html>
