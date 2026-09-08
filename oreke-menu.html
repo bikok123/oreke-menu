@@ -276,7 +276,7 @@
     categoriesEl.appendChild(btn);
   });
 
-  fetch('./menu-data.json', { cache: 'no-store' })
+  fetch('./menu-data.json?v=' + Date.now(), { cache: 'no-store' })
     .then(res => {
       if(!res.ok) throw new Error('no data file');
       return res.json();
