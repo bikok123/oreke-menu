@@ -89,6 +89,11 @@
 
   <div class="panel">
     <h2>Подключение к репозиторию</h2>
+    <label>Ресторан</label>
+    <select id="restaurantSelect" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(243,232,214,0.25); background:transparent; color:var(--cream); font-size:14px; font-family:inherit;">
+      <option value="menu-data.json">Ореке</option>
+      <option value="menu-data-vostochka.json">Восточка</option>
+    </select>
     <label>Логин GitHub (владелец репозитория)</label>
     <input type="text" id="ghOwner" placeholder="bikok123">
     <label>Название репозитория</label>
@@ -156,7 +161,8 @@
     };
   }
   function apiUrl(){
-    return `https://api.github.com/repos/${els.owner.value.trim()}/${els.repo.value.trim()}/contents/menu-data.json`;
+    const file = document.getElementById('restaurantSelect').value;
+    return `https://api.github.com/repos/${els.owner.value.trim()}/${els.repo.value.trim()}/contents/${file}`;
   }
 
   async function loadMenu(){
@@ -353,6 +359,12 @@
   document.getElementById('loadBtn').addEventListener('click', loadMenu);
   document.getElementById('saveBtn').addEventListener('click', saveMenu);
   document.getElementById('addCatBtn').addEventListener('click', addCategory);
+  document.getElementById('restaurantSelect').addEventListener('change', () => {
+    state.categories = [];
+    window._sha = null;
+    renderCategories();
+    setStatus('Выбран другой ресторан — нажмите "Загрузить текущее меню".', '');
+  });
 </script>
 </body>
 </html>
